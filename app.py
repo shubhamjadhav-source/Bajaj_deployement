@@ -82,13 +82,13 @@ def show_progress_bar():
                 st.markdown(f"⚪ {label}")
 
 def step_1_communication_setup():
-    """Step 1: Communication Setup"""
+    """Step 1: Communication Setup - FIXED: Only one category selected"""
     st.header("📋 Communication Setup")
     show_progress_bar()
     
     st.markdown("---")
     
-    # Key Audience Segment
+    # Key Audience Segment (this part is fine)
     st.subheader("Select Key Audience Segment")
     audience = st.radio(
         "",
@@ -99,39 +99,39 @@ def step_1_communication_setup():
     
     st.markdown("---")
     
-    # Category Selection
+    # **FIXED: Category Selection - Single Radio with All Options**
     st.subheader("Select Category")
     
-    # Create a grid layout for categories
-    col1, col2 = st.columns(2)
+    # Combine all categories into one list
+    all_categories = [
+        "Claims", 
+        "CX I-Serv", 
+        "Group Claims", 
+        "iAhead",
+        "CRT Renewals",
+        "CX IVR", 
+        "Group Operations",
+        "Logistics",
+        "Others"
+    ]
     
-    with col1:
-        categories_col1 = [
-            "Claims", 
-            "CX I-Serv", 
-            "Group Claims", 
-            "iAhead"
-        ]
-        for cat in categories_col1:
-            if st.radio("", [cat], key=f"cat_{cat}_radio", label_visibility="collapsed"):
-                category = cat
+    # Get current category from session state or default
+    current_category = st.session_state.form_data.get('category', 'CRT Renewals')
     
-    with col2:
-        categories_col2 = [
-            "CRT Renewals",
-            "CX IVR", 
-            "Group Operations",
-            "Logistics"
-        ]
-        for cat in categories_col2:
-            if st.radio("", [cat], key=f"cat_{cat}_radio", label_visibility="collapsed"):
-                category = cat
+    # Single radio button with all options
+    selected_category = st.radio(
+        "",
+        all_categories,
+        index=all_categories.index(current_category),
+        key="category_selection",
+        label_visibility="collapsed"
+    )
     
-    # Others option
-    if st.checkbox("Others"):
-        category = st.text_input("Specify other category:")
-    else:
-        category = st.session_state.form_data.get('category', 'CRT Renewals')
+    # Handle "Others" option
+    if selected_category == "Others":
+        custom_category = st.text_input("Specify other category:", key="custom_category_input")
+        if custom_category:
+            selected_category = custom_category
     
     st.markdown("---")
     
@@ -140,9 +140,10 @@ def step_1_communication_setup():
     with col3:
         if st.button("Next →", type="primary", use_container_width=True):
             st.session_state.form_data['audience'] = audience
-            st.session_state.form_data['category'] = category
+            st.session_state.form_data['category'] = selected_category
             st.session_state.step = 2
             st.rerun()
+
 
 def step_2_message_details():
     """Step 2: Message Details"""
